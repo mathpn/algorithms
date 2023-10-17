@@ -1,2 +1,3 @@
 # algorithms
-It's just algorithms
+
+It's just algorithms (and some data structures).
