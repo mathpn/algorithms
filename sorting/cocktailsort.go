@@ -1,6 +1,6 @@
 package main
 
-func CocktailSort(arr []int) []int {
+func CocktailSort(arr []int) {
 	for {
 		swapped := false
 		for i := 0; i < len(arr)-1; i++ {
@@ -24,5 +24,4 @@ func CocktailSort(arr []int) []int {
 			break
 		}
 	}
-	return arr
 }

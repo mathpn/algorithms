@@ -1,11 +1,8 @@
 package main
 
-func OddEvenSort(arr []int) []int {
+func OddEvenSort(arr []int) {
 	sorted := false
-	for {
-		if sorted {
-			return arr
-		}
+	for !sorted {
 		sorted = true
 		for i := 1; i < len(arr)-1; i += 2 {
 			if arr[i] > arr[i+1] {

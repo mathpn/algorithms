@@ -1,12 +1,9 @@
 package main
 
-func GnomeSort(arr []int) []int {
+func GnomeSort(arr []int) {
 	i := 0
 	l := len(arr)
-	for {
-		if i >= l {
-			return arr
-		}
+	for i < l {
 		if i == 0 || arr[i] >= arr[i-1] {
 			i++
 		} else {

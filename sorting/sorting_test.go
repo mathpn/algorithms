@@ -33,9 +33,9 @@ func createParams() []sortParams {
 func TestBubbleSort(t *testing.T) {
 	tests := createParams()
 	for _, test := range tests {
-		output := BubbleSort(test.input)
-		if !slices.IsSorted(output) {
-			t.Errorf("array is not sorted. Expected %v, got %v", test.expected, output)
+		BubbleSort(test.input)
+		if !slices.IsSorted(test.input) {
+			t.Errorf("array is not sorted. Expected %v, got %v", test.expected, test.input)
 		}
 	}
 }
@@ -43,9 +43,9 @@ func TestBubbleSort(t *testing.T) {
 func TestCocktailSort(t *testing.T) {
 	tests := createParams()
 	for _, test := range tests {
-		output := CocktailSort(test.input)
-		if !slices.IsSorted(output) {
-			t.Errorf("array is not sorted. Expected %v, got %v", test.expected, output)
+		CocktailSort(test.input)
+		if !slices.IsSorted(test.input) {
+			t.Errorf("array is not sorted. Expected %v, got %v", test.expected, test.input)
 		}
 	}
 }
@@ -53,9 +53,9 @@ func TestCocktailSort(t *testing.T) {
 func TestGnomeSort(t *testing.T) {
 	tests := createParams()
 	for _, test := range tests {
-		output := GnomeSort(test.input)
-		if !slices.IsSorted(output) {
-			t.Errorf("array is not sorted. Expected %v, got %v", test.expected, output)
+		GnomeSort(test.input)
+		if !slices.IsSorted(test.input) {
+			t.Errorf("array is not sorted. Expected %v, got %v", test.expected, test.input)
 		}
 	}
 }
@@ -63,14 +63,24 @@ func TestGnomeSort(t *testing.T) {
 func TestOddEvenSort(t *testing.T) {
 	tests := createParams()
 	for _, test := range tests {
-		output := OddEvenSort(test.input)
-		if !slices.IsSorted(output) {
-			t.Errorf("array is not sorted. Expected %v, got %v", test.expected, output)
+		OddEvenSort(test.input)
+		if !slices.IsSorted(test.input) {
+			t.Errorf("array is not sorted. Expected %v, got %v", test.expected, test.input)
 		}
 	}
 }
 
-func createSlices() [][]int {
+func TestQuicksort(t *testing.T) {
+	tests := createParams()
+	for _, test := range tests {
+		QuickSort(test.input)
+		if !slices.IsSorted(test.input) {
+			t.Errorf("array is not sorted. Expected %v, got %v", test.expected, test.input)
+		}
+	}
+}
+
+func createRandomSlices() [][]int {
 	return [][]int{
 		rand.Perm(10),
 		rand.Perm(100),
@@ -80,34 +90,119 @@ func createSlices() [][]int {
 	}
 }
 
+func createSortedSlices() [][]int {
+	lens := [5]int{10, 100, 1000, 10000, 100000}
+	arrays := make([][]int, 0)
+	for _, l := range lens {
+		arr := make([]int, l)
+		for i := 0; i < l; i++ {
+			arr[i] = i
+		}
+		arrays = append(arrays, arr)
+	}
+	return arrays
+}
+
+func createRevSortedSlices() [][]int {
+	lens := [5]int{10, 100, 1000, 10000, 100000}
+	arrays := make([][]int, 0)
+	for _, l := range lens {
+		arr := make([]int, l)
+		for i := 0; i < l; i++ {
+			arr[i] = l - i
+		}
+		arrays = append(arrays, arr)
+	}
+	return arrays
+}
+
 func BenchmarkBubbleSort(b *testing.B) {
-	for _, slice := range createSlices() {
-		b.Run(fmt.Sprintf("bubble sort %d", len(slice)), func(_ *testing.B) {
+	for _, slice := range createRandomSlices() {
+		b.Run(fmt.Sprintf("random %d", len(slice)), func(_ *testing.B) {
+			BubbleSort(slice)
+		})
+	}
+	for _, slice := range createSortedSlices() {
+		b.Run(fmt.Sprintf("sorted %d", len(slice)), func(_ *testing.B) {
+			BubbleSort(slice)
+		})
+	}
+	for _, slice := range createRevSortedSlices() {
+		b.Run(fmt.Sprintf("rev sorted %d", len(slice)), func(_ *testing.B) {
 			BubbleSort(slice)
 		})
 	}
 }
 
 func BenchmarkCocktailSort(b *testing.B) {
-	for _, slice := range createSlices() {
-		b.Run(fmt.Sprintf("cocktail sort %d", len(slice)), func(_ *testing.B) {
+	for _, slice := range createRandomSlices() {
+		b.Run(fmt.Sprintf("random %d", len(slice)), func(_ *testing.B) {
+			CocktailSort(slice)
+		})
+	}
+	for _, slice := range createSortedSlices() {
+		b.Run(fmt.Sprintf("sorted %d", len(slice)), func(_ *testing.B) {
+			CocktailSort(slice)
+		})
+	}
+	for _, slice := range createRevSortedSlices() {
+		b.Run(fmt.Sprintf("rev sorted %d", len(slice)), func(_ *testing.B) {
 			CocktailSort(slice)
 		})
 	}
 }
 
 func BenchmarkGnomeSort(b *testing.B) {
-	for _, slice := range createSlices() {
-		b.Run(fmt.Sprintf("gnome sort %d", len(slice)), func(_ *testing.B) {
+	for _, slice := range createRandomSlices() {
+		b.Run(fmt.Sprintf("random %d", len(slice)), func(_ *testing.B) {
 			GnomeSort(slice)
+		})
+	}
+	for _, slice := range createSortedSlices() {
+		b.Run(fmt.Sprintf("sorted %d", len(slice)), func(_ *testing.B) {
+			GnomeSort(slice)
+		})
+	}
+	for _, slice := range createRevSortedSlices() {
+		b.Run(fmt.Sprintf("rev sorted %d", len(slice)), func(_ *testing.B) {
+			GnomeSort(slice)
+		})
+	}
+
+}
+
+func BenchmarkOddEvenSort(b *testing.B) {
+	for _, slice := range createRandomSlices() {
+		b.Run(fmt.Sprintf("sort random %d", len(slice)), func(_ *testing.B) {
+			OddEvenSort(slice)
+		})
+	}
+	for _, slice := range createSortedSlices() {
+		b.Run(fmt.Sprintf("sort sorted %d", len(slice)), func(_ *testing.B) {
+			OddEvenSort(slice)
+		})
+	}
+	for _, slice := range createRevSortedSlices() {
+		b.Run(fmt.Sprintf("sort rev sorted %d", len(slice)), func(_ *testing.B) {
+			OddEvenSort(slice)
 		})
 	}
 }
 
-func BenchmarkOddEvenSort(b *testing.B) {
-	for _, slice := range createSlices() {
-		b.Run(fmt.Sprintf("odd even sort %d", len(slice)), func(_ *testing.B) {
-			OddEvenSort(slice)
+func BenchmarkQuicksort(b *testing.B) {
+	for _, slice := range createRandomSlices() {
+		b.Run(fmt.Sprintf("sort random %d", len(slice)), func(_ *testing.B) {
+			QuickSort(slice)
+		})
+	}
+	for _, slice := range createSortedSlices() {
+		b.Run(fmt.Sprintf("sort sorted %d", len(slice)), func(_ *testing.B) {
+			QuickSort(slice)
+		})
+	}
+	for _, slice := range createRevSortedSlices() {
+		b.Run(fmt.Sprintf("sort rev sorted %d", len(slice)), func(_ *testing.B) {
+			QuickSort(slice)
 		})
 	}
 }
