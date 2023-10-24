@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -214,4 +215,72 @@ func TestStack(t *testing.T) {
 			s.Pop()
 		}
 	})
+}
+
+func BenchmarkQueue(b *testing.B) {
+	lens := [4]int{1000, 10000, 100000, 1000000}
+	for _, l := range lens {
+		q := NewQueue()
+		b.Run(fmt.Sprintf("enqueue %d", l), func(b *testing.B) {
+			for i := 0; i < l; i++ {
+				q.Enqueue(i)
+			}
+		})
+	}
+	for _, l := range lens {
+		q := NewQueue()
+		b.Run(fmt.Sprintf("deque %d", l), func(b *testing.B) {
+			for i := 0; i < l; i++ {
+				q.Enqueue(i)
+			}
+			b.StartTimer()
+			for i := 0; i < l; i++ {
+				q.Dequeue()
+			}
+			b.StopTimer()
+		})
+	}
+	for _, l := range lens {
+		q := NewQueue()
+		b.Run(fmt.Sprintf("enqueue deque %d", l), func(b *testing.B) {
+			for i := 0; i < l; i++ {
+				q.Enqueue(i)
+				q.Dequeue()
+			}
+		})
+	}
+}
+
+func BenchmarkStack(b *testing.B) {
+	lens := [4]int{1000, 10000, 100000, 1000000}
+	for _, l := range lens {
+		s := NewStack()
+		b.Run(fmt.Sprintf("push %d", l), func(b *testing.B) {
+			for i := 0; i < l; i++ {
+				s.Push(i)
+			}
+		})
+	}
+	for _, l := range lens {
+		s := NewStack()
+		b.Run(fmt.Sprintf("pop %d", l), func(b *testing.B) {
+			for i := 0; i < l; i++ {
+				s.Push(i)
+			}
+			b.StartTimer()
+			for i := 0; i < l; i++ {
+				s.Pop()
+			}
+			b.StopTimer()
+		})
+	}
+	for _, l := range lens {
+		s := NewStack()
+		b.Run(fmt.Sprintf("push pop %d", l), func(b *testing.B) {
+			for i := 0; i < l; i++ {
+				s.Push(i)
+				s.Pop()
+			}
+		})
+	}
 }
