@@ -217,6 +217,64 @@ func TestStack(t *testing.T) {
 	})
 }
 
+func TestDoublyLinkedList(t *testing.T) {
+	type dblTest struct {
+		values []int
+	}
+	tests := []dblTest{
+		{values: []int{1, 2, 3}},
+		{values: []int{3, 2, 1}},
+		{values: []int{-10, 20, 30, 40}},
+	}
+	t.Run("append and get", func(t *testing.T) {
+		l := NewDoublyLinkedList()
+		for _, values := range tests {
+			for _, v := range values.values {
+				l.Append(v)
+				o, err := l.Get(l.Len - 1)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if v != o {
+					t.Errorf("expected %d, got %d", v, o)
+				}
+			}
+		}
+	})
+	t.Run("prepend and get", func(t *testing.T) {
+		l := NewDoublyLinkedList()
+		for _, values := range tests {
+			for _, v := range values.values {
+				l.Prepend(v)
+				o, err := l.Get(0)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if v != o {
+					t.Errorf("expected %d, got %d", v, o)
+				}
+			}
+		}
+	})
+	t.Run("insertAt and get", func(t *testing.T) {
+		l := NewDoublyLinkedList()
+		l.Append(-1)
+		for _, values := range tests {
+			for _, v := range values.values {
+				l.InsertAt(v, 1)
+				o, err := l.Get(1)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if v != o {
+					t.Errorf("expected %d, got %d", v, o)
+				}
+			}
+		}
+	})
+	// TODO continue
+}
+
 func BenchmarkQueue(b *testing.B) {
 	lens := [4]int{1000, 10000, 100000, 1000000}
 	for _, l := range lens {
