@@ -272,7 +272,41 @@ func TestDoublyLinkedList(t *testing.T) {
 			}
 		}
 	})
-	// TODO continue
+	t.Run("remove", func(t *testing.T) {
+		for _, values := range tests {
+			l := NewDoublyLinkedList()
+			for _, v := range values.values {
+				l.Append(v)
+			}
+			err := l.Remove(values.values[0])
+			if err != nil {
+				t.Error(err)
+			}
+			err = l.Remove(values.values[0])
+			if err == nil {
+				t.Errorf("expected error, got nil when removing %d", values.values[0])
+			}
+		}
+	})
+	t.Run("removeAt", func(t *testing.T) {
+		for _, values := range tests {
+			idx := []int{0, len(values.values) - 1, len(values.values) / 2}
+			l := NewDoublyLinkedList()
+			for _, v := range values.values {
+				l.Append(v)
+			}
+			for _, idx := range idx {
+				v := values.values[idx]
+				o, err := l.RemoveAt(idx)
+				if err != nil {
+					t.Error(err)
+				}
+				if o != v {
+					t.Errorf("expected %d, got %d", v, o)
+				}
+			}
+		}
+	})
 }
 
 func BenchmarkQueue(b *testing.B) {
