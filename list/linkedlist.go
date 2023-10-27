@@ -35,8 +35,10 @@ func (l *DoublyLinkedList) InsertAt(value interface{}, idx int) error {
 		return fmt.Errorf("idx %d out of bounds of list with length %d", idx, l.Len)
 	} else if idx == l.Len {
 		l.Append(value)
+		return nil
 	} else if idx == 0 {
 		l.Prepend(value)
+		return nil
 	}
 	l.Len++
 	node := &llnode{value: value}

@@ -256,6 +256,31 @@ func TestDoublyLinkedList(t *testing.T) {
 			}
 		}
 	})
+	t.Run("insertAt", func(t *testing.T) {
+		for _, values := range tests {
+			idx := []int{0, len(values.values) - 1, len(values.values) / 2}
+			l := NewDoublyLinkedList()
+			for _, v := range values.values {
+				l.Append(v)
+			}
+			for _, idx := range idx {
+				err := l.InsertAt(0, idx)
+				if err != nil {
+					t.Error(err)
+				}
+			}
+		}
+		l := NewDoublyLinkedList()
+		err := l.InsertAt(0, 0)
+		if err != nil {
+			t.Error(err)
+		}
+		l = NewDoublyLinkedList()
+		err = l.InsertAt(0, 3)
+		if err == nil {
+			t.Error("expected error when inserting beyond length")
+		}
+	})
 	t.Run("insertAt and get", func(t *testing.T) {
 		l := NewDoublyLinkedList()
 		l.Append(-1)
@@ -373,6 +398,49 @@ func BenchmarkStack(b *testing.B) {
 				s.Push(i)
 				s.Pop()
 			}
+		})
+	}
+}
+
+func BenchmarkDoublyLinkedList(b *testing.B) {
+	lens := [4]int{1000, 10000, 100000, 1000000}
+	for _, l := range lens {
+		list := NewDoublyLinkedList()
+		for i := 0; i < l; i++ {
+			list.Append(i)
+		}
+		b.Run(fmt.Sprintf("append %d", l), func(_ *testing.B) {
+			list.Append(0)
+		})
+		b.Run(fmt.Sprintf("prepend %d", l), func(_ *testing.B) {
+			list.Prepend(0)
+		})
+		b.Run(fmt.Sprintf("get head %d", l), func(_ *testing.B) {
+			list.Get(0)
+		})
+		b.Run(fmt.Sprintf("get tail %d", l), func(_ *testing.B) {
+			list.Get(list.Len - 1)
+		})
+		b.Run(fmt.Sprintf("get middle %d", l), func(_ *testing.B) {
+			list.Get(list.Len / 2)
+		})
+		b.Run(fmt.Sprintf("removeAt head %d", l), func(_ *testing.B) {
+			list.RemoveAt(0)
+		})
+		b.Run(fmt.Sprintf("removeAt tail %d", l), func(_ *testing.B) {
+			list.RemoveAt(list.Len - 1)
+		})
+		b.Run(fmt.Sprintf("removeAt middle %d", l), func(_ *testing.B) {
+			list.RemoveAt(list.Len / 2)
+		})
+		b.Run(fmt.Sprintf("insertAt head %d", l), func(_ *testing.B) {
+			list.InsertAt(0, 0)
+		})
+		b.Run(fmt.Sprintf("insertAt tail %d", l), func(_ *testing.B) {
+			list.InsertAt(0, list.Len-1)
+		})
+		b.Run(fmt.Sprintf("insertAt middle %d", l), func(_ *testing.B) {
+			list.InsertAt(0, list.Len/2)
 		})
 	}
 }
