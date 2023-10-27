@@ -313,7 +313,7 @@ func BenchmarkQueue(b *testing.B) {
 	lens := [4]int{1000, 10000, 100000, 1000000}
 	for _, l := range lens {
 		q := NewQueue()
-		b.Run(fmt.Sprintf("enqueue %d", l), func(b *testing.B) {
+		b.Run(fmt.Sprintf("enqueue %d", l), func(_ *testing.B) {
 			for i := 0; i < l; i++ {
 				q.Enqueue(i)
 			}
@@ -334,7 +334,7 @@ func BenchmarkQueue(b *testing.B) {
 	}
 	for _, l := range lens {
 		q := NewQueue()
-		b.Run(fmt.Sprintf("enqueue deque %d", l), func(b *testing.B) {
+		b.Run(fmt.Sprintf("enqueue deque %d", l), func(_ *testing.B) {
 			for i := 0; i < l; i++ {
 				q.Enqueue(i)
 				q.Dequeue()
@@ -347,7 +347,7 @@ func BenchmarkStack(b *testing.B) {
 	lens := [4]int{1000, 10000, 100000, 1000000}
 	for _, l := range lens {
 		s := NewStack()
-		b.Run(fmt.Sprintf("push %d", l), func(b *testing.B) {
+		b.Run(fmt.Sprintf("push %d", l), func(_ *testing.B) {
 			for i := 0; i < l; i++ {
 				s.Push(i)
 			}
@@ -368,7 +368,7 @@ func BenchmarkStack(b *testing.B) {
 	}
 	for _, l := range lens {
 		s := NewStack()
-		b.Run(fmt.Sprintf("push pop %d", l), func(b *testing.B) {
+		b.Run(fmt.Sprintf("push pop %d", l), func(_ *testing.B) {
 			for i := 0; i < l; i++ {
 				s.Push(i)
 				s.Pop()
