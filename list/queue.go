@@ -2,24 +2,25 @@ package main
 
 import "fmt"
 
-type node struct {
-	next  *node
-	value interface{}
+type node[T any] struct {
+	next  *node[T]
+	value T
 }
 
-type Queue struct {
-	head *node
-	tail *node
+type Queue[T any] struct {
+	head *node[T]
+	tail *node[T]
 	Len  int
 }
 
-func NewQueue() *Queue {
-	return &Queue{Len: 0}
+func NewQueue() *Queue[int] {
+	return &Queue[int]{Len: 0}
 }
 
-func (q *Queue) Dequeue() (interface{}, error) {
+func (q *Queue[T]) Dequeue() (T, error) {
+	var t T
 	if q.head == nil {
-		return nil, fmt.Errorf("queue is empty")
+		return t, fmt.Errorf("queue is empty")
 	}
 	q.Len--
 	h := q.head
@@ -33,8 +34,8 @@ func (q *Queue) Dequeue() (interface{}, error) {
 	return h.value, nil
 }
 
-func (q *Queue) Enqueue(v interface{}) {
-	node := &node{value: v}
+func (q *Queue[T]) Enqueue(v T) {
+	node := &node[T]{value: v}
 	q.Len++
 	if q.tail == nil {
 		q.head = node
@@ -45,9 +46,10 @@ func (q *Queue) Enqueue(v interface{}) {
 	q.tail = node
 }
 
-func (q *Queue) Peek() (interface{}, error) {
+func (q *Queue[T]) Peek() (T, error) {
+	var t T
 	if q.head == nil {
-		return 0, fmt.Errorf("queue is empty")
+		return t, fmt.Errorf("queue is empty")
 	}
 	return q.head.value, nil
 }

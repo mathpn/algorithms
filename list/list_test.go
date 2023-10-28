@@ -112,6 +112,14 @@ func TestQueue(t *testing.T) {
 }
 
 func TestStack(t *testing.T) {
+	t.Run("pop empty", func(t *testing.T) {
+		q := NewStack()
+		_, err := q.Pop()
+		if err == nil {
+			t.Error("expected error when popping from an empty stack")
+		}
+
+	})
 	t.Run("push/pop 1", func(t *testing.T) {
 		q := NewStack()
 		v := 42

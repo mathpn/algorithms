@@ -2,17 +2,17 @@ package main
 
 import "fmt"
 
-type Stack struct {
-	head *node
+type Stack[T any] struct {
+	head *node[T]
 	Len  int
 }
 
-func NewStack() *Stack {
-	return &Stack{Len: 0}
+func NewStack() *Stack[int] {
+	return &Stack[int]{Len: 0}
 }
 
-func (s *Stack) Push(v interface{}) {
-	node := &node{value: v}
+func (s *Stack[T]) Push(v T) {
+	node := &node[T]{value: v}
 	s.Len++
 	if s.head == nil {
 		s.head = node
@@ -22,9 +22,10 @@ func (s *Stack) Push(v interface{}) {
 	s.head = node
 }
 
-func (s *Stack) Pop() (interface{}, error) {
+func (s *Stack[T]) Pop() (T, error) {
+	var t T
 	if s.head == nil {
-		return nil, fmt.Errorf("stack is empty")
+		return t, fmt.Errorf("stack is empty")
 	}
 	s.Len--
 	h := s.head
@@ -33,9 +34,10 @@ func (s *Stack) Pop() (interface{}, error) {
 	return h.value, nil
 }
 
-func (s *Stack) Peek() (interface{}, error) {
+func (s *Stack[T]) Peek() (T, error) {
+	var t T
 	if s.head == nil {
-		return 0, fmt.Errorf("queue is empty")
+		return t, fmt.Errorf("queue is empty")
 	}
 	return s.head.value, nil
 }

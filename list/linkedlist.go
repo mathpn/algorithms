@@ -2,24 +2,24 @@ package main
 
 import "fmt"
 
-type llnode struct {
-	value interface{}
-	next  *llnode
-	prev  *llnode
+type llnode[T comparable] struct {
+	value T
+	next  *llnode[T]
+	prev  *llnode[T]
 }
 
-type DoublyLinkedList struct {
-	head *llnode
-	tail *llnode
+type DoublyLinkedList[T comparable] struct {
+	head *llnode[T]
+	tail *llnode[T]
 	Len  int
 }
 
-func NewDoublyLinkedList() *DoublyLinkedList {
-	return &DoublyLinkedList{Len: 0}
+func NewDoublyLinkedList() *DoublyLinkedList[int] {
+	return &DoublyLinkedList[int]{Len: 0}
 }
 
-func (l *DoublyLinkedList) Prepend(value interface{}) {
-	node := &llnode{value: value}
+func (l *DoublyLinkedList[T]) Prepend(value T) {
+	node := &llnode[T]{value: value}
 	if l.Len == 0 {
 		l.Append(value)
 		return
@@ -30,7 +30,7 @@ func (l *DoublyLinkedList) Prepend(value interface{}) {
 	l.head = node
 }
 
-func (l *DoublyLinkedList) InsertAt(value interface{}, idx int) error {
+func (l *DoublyLinkedList[T]) InsertAt(value T, idx int) error {
 	if idx > l.Len {
 		return fmt.Errorf("idx %d out of bounds of list with length %d", idx, l.Len)
 	} else if idx == l.Len {
@@ -41,7 +41,7 @@ func (l *DoublyLinkedList) InsertAt(value interface{}, idx int) error {
 		return nil
 	}
 	l.Len++
-	node := &llnode{value: value}
+	node := &llnode[T]{value: value}
 	curr := l.getAt(idx)
 	node.next = curr
 	node.prev = curr.prev
@@ -50,8 +50,8 @@ func (l *DoublyLinkedList) InsertAt(value interface{}, idx int) error {
 	return nil
 }
 
-func (l *DoublyLinkedList) Append(value interface{}) {
-	node := &llnode{value: value}
+func (l *DoublyLinkedList[T]) Append(value T) {
+	node := &llnode[T]{value: value}
 	l.Len++
 	if l.tail == nil {
 		l.head = node
@@ -63,7 +63,7 @@ func (l *DoublyLinkedList) Append(value interface{}) {
 	l.tail = node
 }
 
-func (l *DoublyLinkedList) Remove(value interface{}) error {
+func (l *DoublyLinkedList[T]) Remove(value T) error {
 	curr := l.head
 	for i := 0; i < l.Len; i++ {
 		if curr.value == value {
@@ -78,24 +78,26 @@ func (l *DoublyLinkedList) Remove(value interface{}) error {
 	return nil
 }
 
-func (l *DoublyLinkedList) Get(idx int) (interface{}, error) {
+func (l *DoublyLinkedList[T]) Get(idx int) (T, error) {
+	var t T
 	if idx > (l.Len - 1) {
-		return nil, fmt.Errorf("idx %d out of bounds of list with length %d", idx, l.Len)
+		return t, fmt.Errorf("idx %d out of bounds of list with length %d", idx, l.Len)
 	}
 	n := l.getAt(idx)
 	return n.value, nil
 }
 
-func (l *DoublyLinkedList) RemoveAt(idx int) (interface{}, error) {
+func (l *DoublyLinkedList[T]) RemoveAt(idx int) (T, error) {
+	var t T
 	node := l.getAt(idx)
 	if node == nil {
-		return nil, fmt.Errorf("idx %d is out of bounds of list with length %d", idx, l.Len)
+		return t, fmt.Errorf("idx %d is out of bounds of list with length %d", idx, l.Len)
 	}
 	l.remove(node)
 	return node.value, nil
 }
 
-func (l *DoublyLinkedList) remove(node *llnode) {
+func (l *DoublyLinkedList[T]) remove(node *llnode[T]) {
 	l.Len--
 	if l.Len == 0 {
 		l.head = nil
@@ -118,7 +120,7 @@ func (l *DoublyLinkedList) remove(node *llnode) {
 	node.next = nil
 }
 
-func (l *DoublyLinkedList) getAt(idx int) *llnode {
+func (l *DoublyLinkedList[T]) getAt(idx int) *llnode[T] {
 	curr := l.head
 	for i := 0; i < idx; i++ {
 		if curr.next == nil {
