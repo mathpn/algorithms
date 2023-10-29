@@ -97,3 +97,28 @@ func (t *BinaryTree[T]) BreadthFirstTraversal() []T {
 	}
 	return out
 }
+
+func (t *BinaryTree[T]) BreadthFirstSearch(value T) bool {
+	if t.root == nil {
+		return false
+	}
+	curr := t.root
+	q := list.Queue[*bnode[T]]{}
+	q.Enqueue(curr)
+	for q.Len > 0 {
+		curr, err := q.Dequeue()
+		if curr.value == value {
+			return true
+		}
+		if err != nil {
+			panic(err) // TODO improve
+		}
+		if curr.left != nil {
+			q.Enqueue(curr.left)
+		}
+		if curr.right != nil {
+			q.Enqueue(curr.right)
+		}
+	}
+	return false
+}

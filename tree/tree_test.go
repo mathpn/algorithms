@@ -147,4 +147,21 @@ func TestBinaryTree(t *testing.T) {
 			t.Errorf("expected %v, got %v", exp, path)
 		}
 	})
+	t.Run("breadth-first search", func(t *testing.T) {
+		tree := createTree()
+		values := []int{20, 15, 30}
+		for _, v := range values {
+			found := tree.BreadthFirstSearch(v)
+			if !found {
+				t.Errorf("value %d not found in tree", v)
+			}
+		}
+		values = []int{-1, 42, 101010}
+		for _, v := range values {
+			found := tree.BreadthFirstSearch(v)
+			if found {
+				t.Errorf("value %d should not be found in tree", v)
+			}
+		}
+	})
 }
