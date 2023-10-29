@@ -74,6 +74,23 @@ func walkPost[T constraints.Ordered](curr *bnode[T], processNode func(*bnode[T])
 	processNode(curr)
 }
 
+func (b *BinaryTree[T]) DepthFirstSearch(value T) bool {
+	return search(b.root, value, false)
+}
+
+func search[T constraints.Ordered](curr *bnode[T], value T, found bool) bool {
+	if curr == nil {
+		return found
+	}
+	if curr.value == value {
+		return true
+	}
+
+	found = search(curr.left, value, found)
+	found = search(curr.right, value, found)
+	return found
+}
+
 func (t *BinaryTree[T]) BreadthFirstTraversal() []T {
 	out := make([]T, 0)
 	if t.root == nil {
