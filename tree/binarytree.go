@@ -1,6 +1,8 @@
 package main
 
 import (
+	"main/list"
+
 	"golang.org/x/exp/constraints"
 )
 
@@ -70,4 +72,28 @@ func walkPost[T constraints.Ordered](curr *bnode[T], processNode func(*bnode[T])
 	walkPost(curr.left, processNode)
 	walkPost(curr.right, processNode)
 	processNode(curr)
+}
+
+func (t *BinaryTree[T]) BreadthFirstTraversal() []T {
+	out := make([]T, 0)
+	if t.root == nil {
+		return out
+	}
+	curr := t.root
+	q := list.Queue[*bnode[T]]{}
+	q.Enqueue(curr)
+	for q.Len > 0 {
+		curr, err := q.Dequeue()
+		out = append(out, curr.value)
+		if err != nil {
+			panic(err) // TODO improve
+		}
+		if curr.left != nil {
+			q.Enqueue(curr.left)
+		}
+		if curr.right != nil {
+			q.Enqueue(curr.right)
+		}
+	}
+	return out
 }

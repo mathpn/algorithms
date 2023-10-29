@@ -138,4 +138,13 @@ func TestBinaryTree(t *testing.T) {
 			t.Errorf("expected %v, got %v", exp, path)
 		}
 	})
+	t.Run("breadth-first traversal", func(t *testing.T) {
+		tree := createTree()
+		path := tree.BreadthFirstTraversal()
+		exp := []int{20, 10, 50, 5, 15, 30, 100, 7, 29, 45}
+
+		if !slicesEqual(exp, path) {
+			t.Errorf("expected %v, got %v", exp, path)
+		}
+	})
 }
