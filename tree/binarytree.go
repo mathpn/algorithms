@@ -86,9 +86,7 @@ func search[T constraints.Ordered](curr *bnode[T], value T, found bool) bool {
 		return true
 	}
 
-	found = search(curr.left, value, found)
-	found = search(curr.right, value, found)
-	return found
+	return search(curr.left, value, found) || search(curr.right, value, found)
 }
 
 func (t *BinaryTree[T]) BreadthFirstTraversal() []T {
@@ -138,4 +136,22 @@ func (t *BinaryTree[T]) BreadthFirstSearch(value T) bool {
 		}
 	}
 	return false
+}
+
+func CompareTrees[T constraints.Ordered](a *BinaryTree[T], b *BinaryTree[T]) bool {
+	return compare(a.root, b.root)
+}
+
+func compare[T constraints.Ordered](a *bnode[T], b *bnode[T]) bool {
+	if a == nil && b == nil {
+		return true
+	}
+	if a == nil || b == nil {
+		return false
+	}
+	if a.value != b.value {
+		return false
+	}
+
+	return compare(a.left, b.left) && compare(a.right, b.right)
 }

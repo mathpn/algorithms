@@ -181,4 +181,21 @@ func TestBinaryTree(t *testing.T) {
 			}
 		}
 	})
+	t.Run("tree comparison", func(t *testing.T) {
+		a := createTree()
+		b := createTree2()
+		c := createTree()
+		if CompareTrees(a, b) {
+			t.Errorf("different trees considered equal: %v - %v", a.InOrderTraversal(), b.InOrderTraversal())
+		}
+		if !CompareTrees(a, a) {
+			t.Errorf("tree should be equal to itself: %v", a.InOrderTraversal())
+		}
+		if !CompareTrees(b, b) {
+			t.Errorf("tree should be equal to itself: %v", b.InOrderTraversal())
+		}
+		if !CompareTrees(a, c) {
+			t.Errorf("tree should be equal to identical tree: %v - %v", a.InOrderTraversal(), c.InOrderTraversal())
+		}
+	})
 }
