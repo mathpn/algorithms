@@ -15,9 +15,20 @@ func NewMinHeap() *MinHeap[int] {
 	return &MinHeap[int]{data: make([]int, 0), Len: 0}
 }
 
+func parent(idx int) int {
+	return (idx - 1) / 2
+}
+
+func leftChild(idx int) int {
+	return 2*idx + 1
+}
+
+func rightChild(idx int) int {
+	return 2*idx + 2
+}
+
 func (h *MinHeap[T]) Insert(value T) error {
 	h.data = append(h.data, value)
-	// h.data[h.len] = value
 	h.heapifyUp(h.Len)
 	h.Len++
 	return nil
@@ -39,18 +50,6 @@ func (h *MinHeap[T]) Delete() (T, error) {
 	h.data = h.data[:h.Len+1]
 	h.heapifyDown(0)
 	return t, nil
-}
-
-func parent(idx int) int {
-	return (idx - 1) / 2
-}
-
-func leftChild(idx int) int {
-	return 2*idx + 1
-}
-
-func rightChild(idx int) int {
-	return 2*idx + 2
 }
 
 func (h *MinHeap[T]) heapifyUp(idx int) {

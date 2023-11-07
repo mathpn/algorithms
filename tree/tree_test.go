@@ -225,3 +225,46 @@ func TestMinHeap(t *testing.T) {
 		}
 	}
 }
+
+func TestBinarySearchTree(t *testing.T) {
+	tree := NewBinarySearchTree()
+
+	var err error
+	_, err = tree.Search(-1)
+	if err == nil {
+		t.Errorf("expected error when searching in empty tree")
+	}
+
+	keys := []int{5, 2, 70, 42, 4, 1, 8, 7}
+	values := []string{"foo", "bar", "ping", "pong", "hey", "search", "tree", "binary"}
+
+	for i := 0; i < len(keys); i++ {
+		tree.Insert(keys[i], values[i])
+	}
+
+	indices := make([]int, len(keys))
+	for i := range indices {
+		indices[i] = i
+	}
+	sort.Slice(indices, func(i, j int) bool {
+		return keys[indices[i]] < keys[indices[j]]
+	})
+
+	var out string
+	for i := 0; i < len(keys); i++ {
+		idx := indices[i]
+		out, err = tree.Search(keys[idx])
+		if err != nil {
+			t.Fatal(err)
+		}
+		exp := values[idx]
+		if out != exp {
+			t.Errorf("expected '%s', got '%s'", exp, out)
+		}
+	}
+
+	_, err = tree.Search(-1)
+	if err == nil {
+		t.Error("expected error when searching for non-existing key")
+	}
+}
