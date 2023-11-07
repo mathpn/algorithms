@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"sort"
+	"testing"
+)
 
 func createTree() *BinaryTree[int] {
 	return &BinaryTree[int]{
@@ -198,4 +201,27 @@ func TestBinaryTree(t *testing.T) {
 			t.Errorf("tree should be equal to identical tree: %v - %v", a.InOrderTraversal(), c.InOrderTraversal())
 		}
 	})
+}
+
+func TestMinHeap(t *testing.T) {
+	heap := NewMinHeap()
+	values := []int{5, 2, 70, 42, 4, 1, 8, 7}
+
+	for _, v := range values {
+		heap.Insert(v)
+	}
+	sort.Ints(values)
+	for i, v := range values {
+		hv, err := heap.Delete()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if hv != v {
+			t.Errorf("expected %d, got %d", v, hv)
+		}
+		expLen := len(values) - i - 1
+		if heap.Len != expLen {
+			t.Errorf("expected length of %d, got %d", expLen, heap.Len)
+		}
+	}
 }
