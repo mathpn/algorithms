@@ -62,3 +62,58 @@ func BFS(matrix AdjacencyMatrix[int], source int, needle int) ([]int, error) {
 	slices.Reverse(out)
 	return append(path, out...), nil
 }
+
+type GraphEdge struct {
+	to     int
+	weight float64
+}
+
+type AdjacencyList [][]GraphEdge
+
+func walk(graph AdjacencyList, curr int, needle int, seen []bool, path *list.Stack[int]) bool {
+	if seen[curr] {
+		return false
+	}
+
+	seen[curr] = true
+	path.Push(curr)
+	if curr == needle {
+		return true
+	}
+
+	list := graph[curr]
+	var edge GraphEdge
+	for i := 0; i < len(list); i++ {
+		edge = list[i]
+		if walk(graph, edge.to, needle, seen, path) {
+			return true
+		}
+	}
+
+	_, err := path.Pop()
+	if err != nil {
+		panic(err) // XXX
+	}
+	return false
+}
+
+func DFS(graph AdjacencyList, source int, needle int) ([]int, error) {
+	seen := make([]bool, len(graph))
+	path := list.Stack[int]{}
+	outPath := make([]int, 0)
+	found := walk(graph, source, needle, seen, &path)
+	if !found {
+		return outPath, fmt.Errorf("value %d not found in graph", needle)
+	}
+	var err error
+	var v int
+	for path.Len > 0 {
+		v, err = path.Pop()
+		if err != nil {
+			return outPath, err
+		}
+		outPath = append(outPath, v)
+	}
+	slices.Reverse(outPath)
+	return outPath, nil
+}
