@@ -70,42 +70,50 @@ type GraphEdge struct {
 
 type AdjacencyList [][]GraphEdge
 
-func walk(graph AdjacencyList, curr int, needle int, seen []bool, path *list.Stack[int]) bool {
+func walk(graph AdjacencyList, curr int, needle int, seen []bool, path *list.Stack[int]) (bool, error) {
 	if seen[curr] {
-		return false
+		return false, nil
 	}
 
 	seen[curr] = true
 	path.Push(curr)
 	if curr == needle {
-		return true
+		return true, nil
 	}
 
 	list := graph[curr]
 	var edge GraphEdge
+	var found bool
+	var err error
 	for i := 0; i < len(list); i++ {
 		edge = list[i]
-		if walk(graph, edge.to, needle, seen, path) {
-			return true
+		found, err = walk(graph, edge.to, needle, seen, path)
+		if err != nil {
+			return false, err
+		}
+		if found {
+			return true, nil
 		}
 	}
 
-	_, err := path.Pop()
+	_, err = path.Pop()
 	if err != nil {
-		panic(err) // XXX
+		return false, err
 	}
-	return false
+	return false, nil
 }
 
 func DFS(graph AdjacencyList, source int, needle int) ([]int, error) {
 	seen := make([]bool, len(graph))
 	path := list.Stack[int]{}
 	outPath := make([]int, 0)
-	found := walk(graph, source, needle, seen, &path)
+	found, err := walk(graph, source, needle, seen, &path)
+	if err != nil {
+		return nil, err
+	}
 	if !found {
 		return outPath, fmt.Errorf("value %d not found in graph", needle)
 	}
-	var err error
 	var v int
 	for path.Len > 0 {
 		v, err = path.Pop()
