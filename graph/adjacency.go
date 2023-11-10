@@ -3,9 +3,12 @@ package graph
 import (
 	"fmt"
 	"main/list"
+	"math"
 
 	"golang.org/x/exp/slices"
 )
+
+var infinity = math.Inf(1)
 
 type AdjacencyMatrix[T comparable] [][]T
 
@@ -124,4 +127,75 @@ func DFS(graph AdjacencyList, source int, needle int) ([]int, error) {
 	}
 	slices.Reverse(outPath)
 	return outPath, nil
+}
+
+func hasUnvisited(seen []bool, dists []float64) bool {
+	for i := 0; i < len(seen); i++ {
+		if !seen[i] && dists[i] < infinity { // TODO infinity
+			return true
+		}
+	}
+	return false
+}
+
+func getLowestUnvisited(seen []bool, dists []float64) int {
+	idx := -1
+	ld := infinity
+
+	for i := 0; i < len(seen); i++ {
+		if seen[i] {
+			continue
+		}
+		if ld > dists[i] {
+			ld = dists[i]
+			idx = i
+		}
+	}
+	return idx
+}
+
+func DijkstraList(graph AdjacencyList, source int, sink int) []int {
+	seen := make([]bool, len(graph))
+	dists := make([]float64, len(graph))
+	for i := range dists {
+		dists[i] = infinity
+	}
+	prev := make([]int, len(graph))
+	for i := range prev {
+		prev[i] = -1
+	}
+	dists[source] = 0
+
+	var curr int
+	var dist float64
+	var adjs []GraphEdge
+	var edge GraphEdge
+	// TODO use heap to improve runtime
+	for hasUnvisited(seen, dists) {
+		curr = getLowestUnvisited(seen, dists)
+		seen[curr] = true
+
+		adjs = graph[curr]
+		for i := 0; i < len(adjs); i++ {
+			edge = adjs[i]
+			if seen[edge.to] {
+				continue
+			}
+
+			dist = dists[curr] + edge.weight
+			if dist < dists[edge.to] {
+				dists[edge.to] = dist
+				prev[edge.to] = curr
+			}
+		}
+	}
+	out := make([]int, 0)
+	curr = sink
+	for prev[curr] != -1 {
+		out = append(out, curr)
+		curr = prev[curr]
+	}
+	out = append(out, source)
+	slices.Reverse(out)
+	return out
 }
