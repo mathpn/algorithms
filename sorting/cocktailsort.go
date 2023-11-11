@@ -1,4 +1,4 @@
-package main
+package sorting
 
 func CocktailSort(arr []int) {
 	for {

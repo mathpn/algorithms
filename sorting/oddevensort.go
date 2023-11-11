@@ -1,4 +1,4 @@
-package main
+package sorting
 
 func OddEvenSort(arr []int) {
 	sorted := false

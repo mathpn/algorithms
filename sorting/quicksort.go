@@ -1,4 +1,4 @@
-package main
+package sorting
 
 func QuickSort(arr []int) {
 	quicksort(arr, 0, len(arr)-1)

@@ -1,4 +1,4 @@
-package main
+package sorting
 
 func GnomeSort(arr []int) {
 	i := 0
