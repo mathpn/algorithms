@@ -1,6 +1,7 @@
 package graph
 
 import (
+	"container/heap"
 	"fmt"
 	"main/list"
 	"math"
@@ -129,34 +130,37 @@ func DFS(graph AdjacencyList, source int, needle int) ([]int, error) {
 	return outPath, nil
 }
 
-func hasUnvisited(seen []bool, dists []float64) bool {
-	for i := 0; i < len(seen); i++ {
-		if !seen[i] && dists[i] < infinity { // TODO infinity
-			return true
-		}
-	}
-	return false
+type nodeDist struct {
+	node int
+	dist float64
 }
 
-func getLowestUnvisited(seen []bool, dists []float64) int {
-	idx := -1
-	ld := infinity
+type DistHeap []nodeDist
 
-	for i := 0; i < len(seen); i++ {
-		if seen[i] {
-			continue
-		}
-		if ld > dists[i] {
-			ld = dists[i]
-			idx = i
-		}
-	}
-	return idx
+func (h DistHeap) Len() int           { return len(h) }
+func (h DistHeap) Less(i, j int) bool { return h[i].dist < h[j].dist }
+func (h DistHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+
+func (h *DistHeap) Push(x any) {
+	// Push and Pop use pointer receivers because they modify the slice's length,
+	// not just its contents.
+	*h = append(*h, x.(nodeDist))
+}
+
+func (h *DistHeap) Pop() any {
+	old := *h
+	n := len(old)
+	x := old[n-1]
+	*h = old[0 : n-1]
+	return x
 }
 
 func DijkstraList(graph AdjacencyList, source int, sink int) []int {
 	seen := make([]bool, len(graph))
 	dists := make([]float64, len(graph))
+	h := &DistHeap{}
+	heap.Init(h)
+	heap.Push(h, nodeDist{node: source, dist: 0})
 	for i := range dists {
 		dists[i] = infinity
 	}
@@ -166,31 +170,31 @@ func DijkstraList(graph AdjacencyList, source int, sink int) []int {
 	}
 	dists[source] = 0
 
-	var curr int
+	var nd nodeDist
 	var dist float64
 	var adjs []GraphEdge
 	var edge GraphEdge
-	// TODO use heap to improve runtime
-	for hasUnvisited(seen, dists) {
-		curr = getLowestUnvisited(seen, dists)
-		seen[curr] = true
+	for h.Len() > 0 {
+		nd = heap.Pop(h).(nodeDist)
+		seen[nd.node] = true
 
-		adjs = graph[curr]
+		adjs = graph[nd.node]
 		for i := 0; i < len(adjs); i++ {
 			edge = adjs[i]
 			if seen[edge.to] {
 				continue
 			}
 
-			dist = dists[curr] + edge.weight
+			dist = nd.dist + edge.weight
 			if dist < dists[edge.to] {
 				dists[edge.to] = dist
-				prev[edge.to] = curr
+				heap.Push(h, nodeDist{node: edge.to, dist: dist})
+				prev[edge.to] = nd.node
 			}
 		}
 	}
 	out := make([]int, 0)
-	curr = sink
+	curr := sink
 	for prev[curr] != -1 {
 		out = append(out, curr)
 		curr = prev[curr]
