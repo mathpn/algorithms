@@ -2,9 +2,17 @@ package tree
 
 import (
 	"fmt"
+	"strings"
 
 	"golang.org/x/exp/constraints"
 )
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
 
 type BinarySearchTree[K constraints.Ordered, V any] struct {
 	root *searchNode[K, V]
@@ -30,10 +38,9 @@ func (t *BinarySearchTree[K, V]) Search(key K) (V, error) {
 }
 
 type searchNode[K constraints.Ordered, V any] struct {
-	key   K
-	value V
-	left  *searchNode[K, V]
-	right *searchNode[K, V]
+	key         K
+	value       V
+	left, right *searchNode[K, V]
 }
 
 func (n *searchNode[K, V]) insert(key K, value V) {
@@ -64,4 +71,132 @@ func (n *searchNode[K, V]) search(key K) (V, error) {
 	}
 	var v V
 	return v, fmt.Errorf("key %v not found", key)
+}
+
+type AVLTree[K constraints.Ordered, V any] struct {
+	root *avlNode[K, V]
+}
+
+func NewAVLTree() *AVLTree[int, string] {
+	return &AVLTree[int, string]{}
+}
+
+func (t *AVLTree[K, V]) Insert(key K, value V) {
+	t.root = t.root.insert(key, value)
+	if t.root != nil && (t.root.bal() < -1 || t.root.bal() > 1) {
+		t.root.rebalance()
+	}
+}
+
+func (t *AVLTree[K, V]) Search(key K) (V, error) {
+	var v V
+	if t.root == nil {
+		return v, fmt.Errorf("tree is empty")
+	}
+	return t.root.search(key)
+}
+
+type avlNode[K constraints.Ordered, V any] struct {
+	left   *avlNode[K, V]
+	right  *avlNode[K, V]
+	key    K
+	value  V
+	height int
+}
+
+func (n *avlNode[K, V]) Height() int {
+	if n == nil {
+		return 0
+	}
+	return n.height
+}
+
+func (n *avlNode[K, V]) bal() int {
+	return n.right.Height() - n.left.Height()
+}
+
+func (n *avlNode[K, V]) insert(key K, value V) *avlNode[K, V] {
+	if n == nil {
+		return &avlNode[K, V]{key: key, value: value}
+	}
+	if key == n.key {
+		n.value = value
+		return n
+	}
+
+	if key < n.key {
+		n.left = n.left.insert(key, value)
+	} else {
+		n.right = n.right.insert(key, value)
+	}
+	n.height = max(n.left.Height(), n.right.Height()) + 1
+	return n.rebalance()
+}
+
+func (n *avlNode[K, V]) search(key K) (V, error) {
+	if n.key == key {
+		return n.value, nil
+	}
+	if n.left != nil && key < n.key {
+		return n.left.search(key)
+	}
+	if n.right != nil {
+		return n.right.search(key)
+	}
+	var v V
+	return v, fmt.Errorf("key %v not found", key)
+}
+
+func (n *avlNode[K, V]) updateHeight() {
+	n.height = max(n.left.Height(), n.right.Height()) + 1
+}
+
+func (n *avlNode[K, V]) rotateLeft() *avlNode[K, V] {
+	r := n.right
+	n.right = r.left
+	r.left = n
+
+	n.updateHeight()
+	r.updateHeight()
+	return r
+}
+
+func (n *avlNode[K, V]) rotateRight() *avlNode[K, V] {
+	l := n.left
+	n.left = l.right
+	l.right = n
+
+	n.updateHeight()
+	l.updateHeight()
+	return l
+}
+
+func (n *avlNode[K, V]) rotateRightLeft() *avlNode[K, V] {
+	n.right = n.right.rotateRight()
+	n = n.rotateLeft()
+
+	n.updateHeight()
+	return n
+}
+
+func (n *avlNode[K, V]) rotateLeftRight() *avlNode[K, V] {
+	n.left = n.left.rotateLeft()
+	n = n.rotateRight()
+
+	n.updateHeight()
+	return n
+}
+
+func (n *avlNode[K, V]) rebalance() *avlNode[K, V] {
+	switch {
+	case n.bal() < -1 && n.left.bal() == -1:
+		return n.rotateRight()
+	case n.bal() > 1 && n.right.bal() == 1:
+		return n.rotateLeft()
+	case n.bal() < -1 && n.left.bal() == 1:
+		return n.rotateLeftRight()
+	case n.bal() > 1 && n.right.bal() == -1:
+		return n.rotateRightLeft()
+	}
+	return n
 }
