@@ -1,6 +1,7 @@
 package tree
 
 import (
+	"fmt"
 	"sort"
 	"testing"
 )
@@ -226,45 +227,86 @@ func TestMinHeap(t *testing.T) {
 	}
 }
 
-func TestBinarySearchTree(t *testing.T) {
-	tree := NewBinarySearchTree()
+type treeInsert struct {
+	value string
+	key   int
+}
 
+func makeInserts() [][]treeInsert {
+	out := make([][]treeInsert, 3)
+	out = append(out,
+		[]treeInsert{
+			{key: 5, value: "foo"},
+			{key: 2, value: "bar"},
+			{key: 70, value: "ping"},
+			{key: 42, value: "pong"},
+			{key: 4, value: "hey"},
+			{key: 1, value: "search"},
+			{key: 8, value: "tree"},
+			{key: 7, value: "binary"},
+		})
+
+	inserts := make([]treeInsert, 0)
+	for i := 0; i < 10; i++ {
+		inserts = append(inserts, treeInsert{key: i, value: fmt.Sprintf("v%d", i)})
+	}
+	out = append(out, inserts)
+
+	inserts = make([]treeInsert, 0)
+	for i := 0; i < 10; i++ {
+		inserts = append(inserts, treeInsert{key: 10 - i, value: fmt.Sprintf("v%d", 10-i)})
+	}
+	out = append(out, inserts)
+	return out
+}
+
+type treeConstructor func() BinarySearchable[int, string]
+
+func testBinarysearchable(t *testing.T, constructor treeConstructor, inserts []treeInsert) {
+	tree := constructor()
 	var err error
 	_, err = tree.Search(-1)
 	if err == nil {
 		t.Errorf("expected error when searching in empty tree")
 	}
 
-	keys := []int{5, 2, 70, 42, 4, 1, 8, 7}
-	values := []string{"foo", "bar", "ping", "pong", "hey", "search", "tree", "binary"}
-
-	for i := 0; i < len(keys); i++ {
-		tree.Insert(keys[i], values[i])
-	}
-
-	indices := make([]int, len(keys))
-	for i := range indices {
-		indices[i] = i
-	}
-	sort.Slice(indices, func(i, j int) bool {
-		return keys[indices[i]] < keys[indices[j]]
-	})
-
-	var out string
-	for i := 0; i < len(keys); i++ {
-		idx := indices[i]
-		out, err = tree.Search(keys[idx])
+	var treeDump string
+	for i, insert := range inserts {
+		tree.Insert(insert.key, insert.value)
+		treeDump, err = tree.Dump()
 		if err != nil {
 			t.Fatal(err)
 		}
-		exp := values[idx]
-		if out != exp {
-			t.Errorf("expected '%s', got '%s'", exp, out)
+		t.Logf("step %d -> tree structure:\n%s", i+1, treeDump)
+	}
+
+	var out string
+	for _, insert := range inserts {
+		out, err = tree.Search(insert.key)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if out != insert.value {
+			t.Errorf("expected '%s', got '%s'", insert.value, out)
 		}
 	}
 
 	_, err = tree.Search(-1)
 	if err == nil {
 		t.Error("expected error when searching for non-existing key")
+	}
+}
+
+func TestBinarySearchTree(t *testing.T) {
+	insertsSlice := makeInserts()
+	for _, inserts := range insertsSlice {
+		testBinarysearchable(t, NewBinarySearchTree[int, string], inserts)
+	}
+}
+
+func TestAVLTree(t *testing.T) {
+	insertsSlice := makeInserts()
+	for _, inserts := range insertsSlice {
+		testBinarysearchable(t, NewAVLTree[int, string], inserts)
 	}
 }

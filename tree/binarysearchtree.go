@@ -2,6 +2,7 @@ package tree
 
 import (
 	"fmt"
+	"main/list"
 	"strings"
 
 	"golang.org/x/exp/constraints"
@@ -14,17 +15,23 @@ func max(a, b int) int {
 	return b
 }
 
-type BinarySearchTree[K constraints.Ordered, V any] struct {
-	root *searchNode[K, V]
+type BinarySearchable[K constraints.Ordered, V any] interface {
+	Insert(key K, value V)
+	Search(key K) (V, error)
+	Dump() (string, error)
 }
 
-func NewBinarySearchTree() *BinarySearchTree[int, string] {
-	return &BinarySearchTree[int, string]{}
+type BinarySearchTree[K constraints.Ordered, V any] struct {
+	root *simpleNode[K, V]
+}
+
+func NewBinarySearchTree[K constraints.Ordered, V any]() BinarySearchable[K, V] {
+	return &BinarySearchTree[K, V]{}
 }
 
 func (t *BinarySearchTree[K, V]) Insert(key K, value V) {
 	if t.root == nil {
-		t.root = &searchNode[K, V]{}
+		t.root = &simpleNode[K, V]{}
 	}
 	t.root.insert(key, value)
 }
@@ -37,29 +44,50 @@ func (t *BinarySearchTree[K, V]) Search(key K) (V, error) {
 	return t.root.search(key)
 }
 
-type searchNode[K constraints.Ordered, V any] struct {
-	key         K
-	value       V
-	left, right *searchNode[K, V]
+func (t *BinarySearchTree[K, V]) Dump() (string, error) {
+	pq := &list.Queue[string]{}
+	t.root.dump(pq, 0, "")
+	out := ""
+	var line string
+	var err error
+	for pq.Len > 0 {
+		line, err = pq.Dequeue()
+		if err != nil {
+			return "", err
+		}
+		out += line
+	}
+	return out, nil
 }
 
-func (n *searchNode[K, V]) insert(key K, value V) {
+type simpleNode[K constraints.Ordered, V any] struct {
+	key         K
+	value       V
+	left, right *simpleNode[K, V]
+}
+
+func (n *simpleNode[K, V]) insert(key K, value V) {
+	if key == n.key {
+		n.value = value
+		return
+	}
+
 	if key < n.key {
 		if n.left == nil {
-			n.left = &searchNode[K, V]{key: key, value: value}
+			n.left = &simpleNode[K, V]{key: key, value: value}
 		} else {
 			n.left.insert(key, value)
 		}
 	} else {
 		if n.right == nil {
-			n.right = &searchNode[K, V]{key: key, value: value}
+			n.right = &simpleNode[K, V]{key: key, value: value}
 		} else {
 			n.right.insert(key, value)
 		}
 	}
 }
 
-func (n *searchNode[K, V]) search(key K) (V, error) {
+func (n *simpleNode[K, V]) search(key K) (V, error) {
 	if n.key == key {
 		return n.value, nil
 	}
@@ -73,12 +101,25 @@ func (n *searchNode[K, V]) search(key K) (V, error) {
 	return v, fmt.Errorf("key %v not found", key)
 }
 
+func (n *simpleNode[K, V]) dump(pq *list.Queue[string], i int, lr string) {
+	if n == nil {
+		return
+	}
+	indent := ""
+	if i > 0 {
+		indent = strings.Repeat(" ", (i-1)*4) + "+" + lr + "--"
+	}
+	pq.Enqueue(fmt.Sprintf("%s{key: %v, value: %v}\n", indent, n.key, n.value))
+	n.left.dump(pq, i+1, "L")
+	n.right.dump(pq, i+1, "R")
+}
+
 type AVLTree[K constraints.Ordered, V any] struct {
 	root *avlNode[K, V]
 }
 
-func NewAVLTree() *AVLTree[int, string] {
-	return &AVLTree[int, string]{}
+func NewAVLTree[K constraints.Ordered, V any]() BinarySearchable[K, V] {
+	return &AVLTree[K, V]{}
 }
 
 func (t *AVLTree[K, V]) Insert(key K, value V) {
@@ -94,6 +135,22 @@ func (t *AVLTree[K, V]) Search(key K) (V, error) {
 		return v, fmt.Errorf("tree is empty")
 	}
 	return t.root.search(key)
+}
+
+func (t *AVLTree[K, V]) Dump() (string, error) {
+	pq := &list.Queue[string]{}
+	t.root.dump(pq, 0, "")
+	out := ""
+	var line string
+	var err error
+	for pq.Len > 0 {
+		line, err = pq.Dequeue()
+		if err != nil {
+			return "", err
+		}
+		out += line
+	}
+	return out, nil
 }
 
 type avlNode[K constraints.Ordered, V any] struct {
@@ -199,4 +256,17 @@ func (n *avlNode[K, V]) rebalance() *avlNode[K, V] {
 		return n.rotateRightLeft()
 	}
 	return n
+}
+
+func (n *avlNode[K, V]) dump(pq *list.Queue[string], i int, lr string) {
+	if n == nil {
+		return
+	}
+	indent := ""
+	if i > 0 {
+		indent = strings.Repeat(" ", (i-1)*4) + "+" + lr + "--"
+	}
+	pq.Enqueue(fmt.Sprintf("%s{key: %v, value: %v}[%d,%d]\n", indent, n.key, n.value, n.bal(), n.Height()))
+	n.left.dump(pq, i+1, "L")
+	n.right.dump(pq, i+1, "R")
 }
