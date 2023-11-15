@@ -31,7 +31,8 @@ func NewBinarySearchTree[K constraints.Ordered, V any]() BinarySearchable[K, V] 
 
 func (t *BinarySearchTree[K, V]) Insert(key K, value V) {
 	if t.root == nil {
-		t.root = &simpleNode[K, V]{}
+		t.root = &simpleNode[K, V]{key: key, value: value}
+		return
 	}
 	t.root.insert(key, value)
 }
@@ -45,13 +46,13 @@ func (t *BinarySearchTree[K, V]) Search(key K) (V, error) {
 }
 
 func (t *BinarySearchTree[K, V]) Dump() (string, error) {
-	pq := &list.Queue[string]{}
-	t.root.dump(pq, 0, "")
+	ps := &list.Stack[string]{}
+	t.root.dump(ps, 0, "M")
 	out := ""
 	var line string
 	var err error
-	for pq.Len > 0 {
-		line, err = pq.Dequeue()
+	for ps.Len > 0 {
+		line, err = ps.Pop()
 		if err != nil {
 			return "", err
 		}
@@ -101,17 +102,15 @@ func (n *simpleNode[K, V]) search(key K) (V, error) {
 	return v, fmt.Errorf("key %v not found", key)
 }
 
-func (n *simpleNode[K, V]) dump(pq *list.Queue[string], i int, lr string) {
+func (n *simpleNode[K, V]) dump(ps *list.Stack[string], i int, lr string) {
 	if n == nil {
 		return
 	}
 	indent := ""
-	if i > 0 {
-		indent = strings.Repeat(" ", (i-1)*4) + "+" + lr + "--"
-	}
-	pq.Enqueue(fmt.Sprintf("%s{key: %v, value: %v}\n", indent, n.key, n.value))
-	n.left.dump(pq, i+1, "L")
-	n.right.dump(pq, i+1, "R")
+	indent = strings.Repeat(" ", i*4) + "+" + lr + "--"
+	n.left.dump(ps, i+1, "L")
+	ps.Push(fmt.Sprintf("%s{key: %v, value: %v}\n", indent, n.key, n.value))
+	n.right.dump(ps, i+1, "R")
 }
 
 type AVLTree[K constraints.Ordered, V any] struct {
@@ -138,13 +137,13 @@ func (t *AVLTree[K, V]) Search(key K) (V, error) {
 }
 
 func (t *AVLTree[K, V]) Dump() (string, error) {
-	pq := &list.Queue[string]{}
-	t.root.dump(pq, 0, "")
+	ps := &list.Stack[string]{}
+	t.root.dump(ps, 0, "M")
 	out := ""
 	var line string
 	var err error
-	for pq.Len > 0 {
-		line, err = pq.Dequeue()
+	for ps.Len > 0 {
+		line, err = ps.Pop()
 		if err != nil {
 			return "", err
 		}
@@ -258,15 +257,13 @@ func (n *avlNode[K, V]) rebalance() *avlNode[K, V] {
 	return n
 }
 
-func (n *avlNode[K, V]) dump(pq *list.Queue[string], i int, lr string) {
+func (n *avlNode[K, V]) dump(ps *list.Stack[string], i int, lr string) {
 	if n == nil {
 		return
 	}
 	indent := ""
-	if i > 0 {
-		indent = strings.Repeat(" ", (i-1)*4) + "+" + lr + "--"
-	}
-	pq.Enqueue(fmt.Sprintf("%s{key: %v, value: %v}[%d,%d]\n", indent, n.key, n.value, n.bal(), n.Height()))
-	n.left.dump(pq, i+1, "L")
-	n.right.dump(pq, i+1, "R")
+	indent = strings.Repeat(" ", i*4) + "+" + lr + "--"
+	n.left.dump(ps, i+1, "L")
+	ps.Push(fmt.Sprintf("%s{key: %v, value: %v}[%d,%d]\n", indent, n.key, n.value, n.bal(), n.Height()))
+	n.right.dump(ps, i+1, "R")
 }
