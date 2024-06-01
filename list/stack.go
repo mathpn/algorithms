@@ -37,7 +37,7 @@ func (s *Stack[T]) Pop() (T, error) {
 func (s *Stack[T]) Peek() (T, error) {
 	var t T
 	if s.head == nil {
-		return t, fmt.Errorf("queue is empty")
+		return t, fmt.Errorf("stack is empty")
 	}
 	return s.head.value, nil
 }
