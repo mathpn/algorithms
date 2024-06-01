@@ -310,3 +310,29 @@ func TestAVLTree(t *testing.T) {
 		testBinarysearchable(t, NewAVLTree[int, string], inserts)
 	}
 }
+
+func TestTrieSearch(t *testing.T) {
+	trie := NewTrie()
+	inserts := []string{"cat", "can", "foo", "the", "then", "breathe"}
+	var found bool
+	for _, word := range inserts {
+		found = trie.Search(word)
+		if found {
+			t.Errorf("word %s should not be found in trie", word)
+		}
+		trie.Insert(word)
+
+		found = trie.Search(word)
+		if !found {
+			t.Errorf("word %s should be found in trie", word)
+		}
+	}
+
+	for _, word := range inserts {
+		found = trie.Search(word)
+		if !found {
+			t.Errorf("word %s should be found in trie", word)
+		}
+		trie.Insert(word)
+	}
+}
