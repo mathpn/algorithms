@@ -336,3 +336,40 @@ func TestTrieSearch(t *testing.T) {
 		trie.Insert(word)
 	}
 }
+
+type prefixTest struct {
+	word   string
+	prefix bool
+	insert bool
+}
+
+func TestTriePrefix(t *testing.T) {
+	trie := NewTrie()
+	tests := []prefixTest{
+		{word: "ca", prefix: false, insert: false},
+		{word: "c", prefix: false, insert: false},
+		{word: "cat", prefix: false, insert: true},
+		{word: "can", prefix: false, insert: true},
+		{word: "ca", prefix: true, insert: false},
+		{word: "the", prefix: false, insert: true},
+		{word: "then", prefix: false, insert: true},
+		{word: "the", prefix: true, insert: true},
+		{word: "the", prefix: true, insert: true},
+	}
+
+	var isPrefix bool
+	for _, prefixTest := range tests {
+		isPrefix = trie.StartsWith(prefixTest.word)
+		if isPrefix != prefixTest.prefix {
+			t.Errorf(
+				"trie prefix search failed for word %s. Expected %v got %v",
+				prefixTest.word,
+				prefixTest.prefix,
+				isPrefix,
+			)
+		}
+		if prefixTest.insert {
+			trie.Insert(prefixTest.word)
+		}
+	}
+}
