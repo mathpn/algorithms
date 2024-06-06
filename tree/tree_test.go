@@ -373,3 +373,30 @@ func TestTriePrefix(t *testing.T) {
 		}
 	}
 }
+
+func TestPatriciaTrie(t *testing.T) {
+	trie := NewPatriciaTrie()
+	// inserts := []string{"cat", "can", "foo", "the", "then", "breathe"}
+	inserts := []string{"then", "foo", "bar"}
+	var found bool
+	for _, word := range inserts {
+		found = trie.Search(word)
+		if found {
+			t.Errorf("word %s should not be found in trie", word)
+		}
+		trie.Insert(word)
+
+		found = trie.Search(word)
+		if !found {
+			t.Errorf("word %s should be found in trie", word)
+		}
+	}
+
+	for _, word := range inserts {
+		found = trie.Search(word)
+		if !found {
+			t.Errorf("word %s should be found in trie", word)
+		}
+		trie.Insert(word)
+	}
+}
