@@ -376,8 +376,7 @@ func TestTriePrefix(t *testing.T) {
 
 func TestPatriciaTrie(t *testing.T) {
 	trie := NewPatriciaTrie()
-	// inserts := []string{"cat", "can", "foo", "the", "then", "breathe"}
-	inserts := []string{"then", "foo", "bar"}
+	inserts := []string{"orange", "organism", "apple", "ape", "cat", "can", "foo", "the", "then", "bar"}
 	var found bool
 	for _, word := range inserts {
 		found = trie.Search(word)
@@ -385,6 +384,7 @@ func TestPatriciaTrie(t *testing.T) {
 			t.Errorf("word %s should not be found in trie", word)
 		}
 		trie.Insert(word)
+		trie.Print()
 
 		found = trie.Search(word)
 		if !found {
