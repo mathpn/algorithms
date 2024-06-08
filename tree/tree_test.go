@@ -395,6 +395,7 @@ func TestPatriciaTrie(t *testing.T) {
 		"horror",
 		"ore",
 		"oregon",
+		"or",
 	}
 	var found bool
 	for _, word := range inserts {
