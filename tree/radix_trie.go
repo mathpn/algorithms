@@ -40,7 +40,7 @@ func (t *PatriciaTrie) print(currentNode *node, length int, path []string) {
 	if currentNode.parentEdge != nil {
 		edgeLabel := t.edgeValues[currentNode.parentEdge.label][length : length+currentNode.parentEdge.length]
 		if edgeLabel != string('\x00') {
-			path = append(path, edgeLabel)
+			path = append(path, fmt.Sprintf("[%d] %s", currentNode.parentEdge.label, edgeLabel))
 		}
 		length += currentNode.parentEdge.length
 	}
