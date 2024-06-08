@@ -112,7 +112,7 @@ func (t *PatriciaTrie) Insert(key string) {
 		currentNode = t.root
 	}
 
-	remainder := lenKey - elementsFound - 1 // NOTE null byte
+	remainder := lenKey - elementsFound
 	if elementsFound == 0 && i == 0 {
 		t.edgeValues = append(t.edgeValues, key)
 		edge := &edge{label: len(t.edgeValues) - 1, length: len(key)}
