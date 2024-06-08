@@ -39,7 +39,9 @@ func (t *PatriciaTrie) print(currentNode *node, length int, path []string) {
 
 	if currentNode.parentEdge != nil {
 		edgeLabel := t.edgeValues[currentNode.parentEdge.label][length : length+currentNode.parentEdge.length]
-		path = append(path, edgeLabel)
+		if edgeLabel != string('\x00') {
+			path = append(path, edgeLabel)
+		}
 		length += currentNode.parentEdge.length
 	}
 
@@ -57,6 +59,7 @@ func (t *PatriciaTrie) print(currentNode *node, length int, path []string) {
 
 // FIXME this is WIP and completely wrong
 func (t *PatriciaTrie) Insert(key string) {
+	key += string('\x00')
 	currentNode := t.root
 	elementsFound := 0
 	lenKey := len(key)
@@ -109,7 +112,7 @@ func (t *PatriciaTrie) Insert(key string) {
 		currentNode = t.root
 	}
 
-	remainder := lenKey - elementsFound
+	remainder := lenKey - elementsFound - 1 // NOTE null byte
 	if elementsFound == 0 && i == 0 {
 		t.edgeValues = append(t.edgeValues, key)
 		edge := &edge{label: len(t.edgeValues) - 1, length: len(key)}
@@ -146,6 +149,7 @@ func (t *PatriciaTrie) Insert(key string) {
 }
 
 func (t *PatriciaTrie) Search(key string) bool {
+	key += string('\x00')
 	currentNode := t.root
 	elementsFound := 0
 	lenKey := len(key)
