@@ -27,6 +27,7 @@ func NewPatriciaTrie() *PatriciaTrie {
 
 func (t *PatriciaTrie) Print() {
 	fmt.Println("-> TRIE:")
+	fmt.Printf("%v\n", t.edgeValues)
 	node := t.root
 	t.print(node, 0, make([]string, 0))
 }
@@ -91,11 +92,17 @@ func (t *PatriciaTrie) Insert(key string) {
 			}
 			if i != 0 {
 				nextNode = childNode
+				elementsFound += i
 				break
 			}
-
+		}
+		if nextNode == nil {
+			break
 		}
 		currentNode = nextNode
+		if i != 0 {
+			break
+		}
 	}
 
 	if currentNode == nil {
@@ -109,23 +116,32 @@ func (t *PatriciaTrie) Insert(key string) {
 		childNode := &node{parentEdge: edge, isLeaf: true}
 		currentNode.children = append(currentNode.children, childNode)
 	} else if remainder > 0 {
-
+		idx := currentNode.parentEdge.label
 		if i != 0 {
-			currentNode.parentEdge.length = i
 			edgeLabel := t.edgeValues[currentNode.parentEdge.label]
 			t.edgeValues = append(t.edgeValues, edgeLabel)
-			edge := &edge{label: len(t.edgeValues) - 1, length: len(edgeLabel) - i}
+			edge := &edge{label: idx, length: currentNode.parentEdge.length - i}
 			childNode := &node{parentEdge: edge, isLeaf: currentNode.isLeaf}
+			childNode.children = currentNode.children
 			currentNode.isLeaf = false
-			currentNode.children = append(currentNode.children, childNode)
+			currentNode.children = []*node{childNode}
+			currentNode.parentEdge.length = i
+			idx = len(t.edgeValues) - 1
 		}
 
-		currentNode.isLeaf = false
-		idx := currentNode.parentEdge.label
-		t.edgeValues[idx] = fullKey
-		edge := &edge{label: idx, length: len(key) - i}
-		childNode := &node{parentEdge: edge, isLeaf: true}
-		currentNode.children = append(currentNode.children, childNode)
+		if currentNode.isLeaf || i != 0 {
+			currentNode.isLeaf = false
+			t.edgeValues[idx] = fullKey
+			edge := &edge{label: idx, length: len(key) - i}
+			childNode := &node{parentEdge: edge, isLeaf: true}
+			currentNode.children = append(currentNode.children, childNode)
+		} else {
+			t.edgeValues = append(t.edgeValues, fullKey)
+			idx = len(t.edgeValues) - 1
+			edge := &edge{label: idx, length: len(key) - i}
+			childNode := &node{parentEdge: edge, isLeaf: true}
+			currentNode.children = append(currentNode.children, childNode)
+		}
 	}
 }
 
