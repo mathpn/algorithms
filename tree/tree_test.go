@@ -376,7 +376,26 @@ func TestTriePrefix(t *testing.T) {
 
 func TestPatriciaTrie(t *testing.T) {
 	trie := NewPatriciaTrie()
-	inserts := []string{"orange", "organism", "apple", "ape", "cat", "can", "foo", "the", "then", "bar"}
+	inserts := []string{
+		"orange",
+		"organism",
+		"apple",
+		"ape",
+		"cat",
+		"can",
+		"foo",
+		"the",
+		"then",
+		"bar",
+		"organization",
+		"organizations",
+		"oranges",
+		"organized",
+		"organs",
+		"horror",
+		"ore",
+		"oregon",
+	}
 	var found bool
 	for _, word := range inserts {
 		found = trie.Search(word)
