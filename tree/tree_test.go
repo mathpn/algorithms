@@ -424,7 +424,6 @@ func TestPatriciaTrieSearch(t *testing.T) {
 			t.Errorf("word %s should not be found in trie", word)
 		}
 		trie.Insert(word)
-		trie.Print()
 
 		found = trie.Search(word)
 		if !found {
@@ -438,5 +437,36 @@ func TestPatriciaTrieSearch(t *testing.T) {
 			t.Errorf("word %s should be found in trie", word)
 		}
 		trie.Insert(word)
+	}
+}
+
+func TestPatriciaTriePrefix(t *testing.T) {
+	trie := NewPatriciaTrie()
+	tests := []prefixTest{
+		{word: "ca", prefix: false, insert: false},
+		{word: "c", prefix: false, insert: false},
+		{word: "cat", prefix: false, insert: true},
+		{word: "can", prefix: false, insert: true},
+		{word: "ca", prefix: true, insert: false},
+		{word: "the", prefix: false, insert: true},
+		{word: "then", prefix: false, insert: true},
+		{word: "the", prefix: true, insert: true},
+		{word: "the", prefix: true, insert: true},
+	}
+
+	var isPrefix bool
+	for _, prefixTest := range tests {
+		isPrefix = trie.StartsWith(prefixTest.word)
+		if isPrefix != prefixTest.prefix {
+			t.Errorf(
+				"trie prefix search failed for word %s. Expected %v got %v",
+				prefixTest.word,
+				prefixTest.prefix,
+				isPrefix,
+			)
+		}
+		if prefixTest.insert {
+			trie.Insert(prefixTest.word)
+		}
 	}
 }

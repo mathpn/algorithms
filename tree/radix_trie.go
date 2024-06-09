@@ -169,33 +169,11 @@ func (t *PatriciaTrie) Insert(key string) {
 
 func (t *PatriciaTrie) Search(key string) bool {
 	key += string('\x00')
-	currentNode := t.root
-	elementsFound := 0
-	lenKey := len(key)
+	_, elementsFound, _ := t.search(key)
+	return elementsFound == len(key)
+}
 
-	var nextNode *node
-	for currentNode != nil {
-		if elementsFound == lenKey {
-			break
-		}
-
-		if currentNode.children == nil {
-			break
-		}
-
-		nextNode = nil
-		for _, childNode := range currentNode.children {
-			edgeLabel := t.edgeValues[childNode.parentEdge.id][elementsFound : elementsFound+childNode.parentEdge.length]
-
-			if strings.HasPrefix(key, edgeLabel) {
-				nextNode = childNode
-				elementsFound += nextNode.parentEdge.length
-				key = key[nextNode.parentEdge.length:]
-				break
-			}
-		}
-		currentNode = nextNode
-	}
-
-	return elementsFound == lenKey
+func (t *PatriciaTrie) StartsWith(key string) bool {
+	_, elementsFound, _ := t.search(key)
+	return elementsFound == len(key)
 }
