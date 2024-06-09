@@ -313,7 +313,27 @@ func TestAVLTree(t *testing.T) {
 
 func TestTrieSearch(t *testing.T) {
 	trie := NewTrie()
-	inserts := []string{"cat", "can", "foo", "the", "then", "breathe"}
+	inserts := []string{
+		"orange",
+		"organism",
+		"apple",
+		"ape",
+		"cat",
+		"can",
+		"foo",
+		"the",
+		"then",
+		"bar",
+		"organization",
+		"organizations",
+		"oranges",
+		"organized",
+		"organs",
+		"horror",
+		"ore",
+		"oregon",
+		"or",
+	}
 	var found bool
 	for _, word := range inserts {
 		found = trie.Search(word)
@@ -374,7 +394,7 @@ func TestTriePrefix(t *testing.T) {
 	}
 }
 
-func TestPatriciaTrie(t *testing.T) {
+func TestPatriciaTrieSearch(t *testing.T) {
 	trie := NewPatriciaTrie()
 	inserts := []string{
 		"orange",
