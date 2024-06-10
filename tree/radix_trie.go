@@ -75,19 +75,19 @@ func (t *PatriciaTrie) findChild(n *node, key string, elementsFound int) *node {
 }
 
 func (t *PatriciaTrie) findPrefix(n *node, key string, elementsFound int) (*node, int) {
-	var i, l int
+	var overlap, l int
 	for _, childNode := range n.children {
 		l = elementsFound + childNode.parentEdge.length
 		edgeLabel := t.edgeValues[childNode.parentEdge.id][elementsFound:l]
 
-		for ; i < len(key)-elementsFound; i++ {
-			if key[i] != edgeLabel[i] {
+		for ; overlap < len(key)-elementsFound; overlap++ {
+			if key[overlap] != edgeLabel[overlap] {
 				break
 			}
 		}
 
-		if i != 0 {
-			return childNode, i
+		if overlap != 0 {
+			return childNode, overlap
 		}
 	}
 	return n, 0
@@ -98,7 +98,7 @@ func (t *PatriciaTrie) search(key string) (*node, int, int) {
 	elementsFound := 0
 	lenKey := len(key)
 
-	var i int
+	var overlap int
 	var nextNode *node
 	for currentNode != nil {
 		if elementsFound == lenKey {
@@ -112,9 +112,9 @@ func (t *PatriciaTrie) search(key string) (*node, int, int) {
 		nextNode = nil
 		nextNode = t.findChild(currentNode, key, elementsFound)
 		if nextNode == nil {
-			currentNode, i = t.findPrefix(currentNode, key, elementsFound)
-			elementsFound += i
-			return currentNode, elementsFound, i
+			currentNode, overlap = t.findPrefix(currentNode, key, elementsFound)
+			elementsFound += overlap
+			return currentNode, elementsFound, overlap
 		}
 		key = key[nextNode.parentEdge.length:]
 		elementsFound += nextNode.parentEdge.length
@@ -128,43 +128,46 @@ func (t *PatriciaTrie) Insert(key string) {
 	key += string('\x00')
 	lenKey := len(key)
 
-	currentNode, elementsFound, i := t.search(key)
+	currentNode, elementsFound, overlap := t.search(key)
 	if currentNode == nil {
 		currentNode = t.root
 	}
 
-	remainder := lenKey - elementsFound
-	if elementsFound == 0 && i == 0 {
-		t.edgeValues = append(t.edgeValues, key)
-		edge := &edge{id: len(t.edgeValues) - 1, length: len(key)}
-		childNode := &node{parentEdge: edge}
-		currentNode.children = append(currentNode.children, childNode)
-	} else if remainder > 0 {
-		idx := currentNode.parentEdge.id
-		if i != 0 {
-			edgeLabel := t.edgeValues[currentNode.parentEdge.id]
-			t.edgeValues = append(t.edgeValues, edgeLabel)
-			edge := &edge{id: idx, length: currentNode.parentEdge.length - i}
-			childNode := &node{parentEdge: edge}
-			childNode.children = currentNode.children
-			currentNode.children = []*node{childNode}
-			currentNode.parentEdge.length = i
-			idx = len(t.edgeValues) - 1
-		}
-
-		if currentNode.isLeaf() || i != 0 {
-			t.edgeValues[idx] = key
-			edge := &edge{id: idx, length: lenKey - elementsFound}
-			childNode := &node{parentEdge: edge}
-			currentNode.children = append(currentNode.children, childNode)
-		} else {
-			t.edgeValues = append(t.edgeValues, key)
-			idx = len(t.edgeValues) - 1
-			edge := &edge{id: idx, length: lenKey - elementsFound}
-			childNode := &node{parentEdge: edge}
-			currentNode.children = append(currentNode.children, childNode)
-		}
+	if elementsFound == lenKey {
+		return
 	}
+
+	if elementsFound == 0 {
+		t.insertRootChild(currentNode, key)
+	} else {
+		t.insertNode(currentNode, key, elementsFound, overlap)
+	}
+}
+
+func (t *PatriciaTrie) insertRootChild(n *node, key string) {
+	t.edgeValues = append(t.edgeValues, key)
+	edge := &edge{id: len(t.edgeValues) - 1, length: len(key)}
+	childNode := &node{parentEdge: edge}
+	n.children = append(n.children, childNode)
+}
+
+func (t *PatriciaTrie) insertNode(n *node, key string, elementsFound int, overlap int) {
+	idx := n.parentEdge.id
+	lenKey := len(key)
+
+	if overlap != 0 {
+		splitEdge := &edge{id: idx, length: n.parentEdge.length - overlap}
+		splitNode := &node{parentEdge: splitEdge}
+		splitNode.children = n.children
+		n.children = []*node{splitNode}
+		n.parentEdge.length = overlap
+	}
+
+	t.edgeValues = append(t.edgeValues, key)
+	idx = len(t.edgeValues) - 1
+	newEdge := &edge{id: idx, length: lenKey - elementsFound}
+	newNode := &node{parentEdge: newEdge}
+	n.children = append(n.children, newNode)
 }
 
 func (t *PatriciaTrie) Search(key string) bool {
