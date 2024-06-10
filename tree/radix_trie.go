@@ -6,22 +6,22 @@ import (
 )
 
 type node struct {
-	parentEdge *edge
-	children   []*node
+	parent   *edge
+	children []*node
 }
 
 type edge struct {
-	id     int
-	length int
+	id  int
+	len int
 }
 
 type PatriciaTrie struct {
-	root       *node
-	edgeValues []string
+	root    *node
+	strings []string
 }
 
 func NewPatriciaTrie() *PatriciaTrie {
-	return &PatriciaTrie{root: &node{}, edgeValues: make([]string, 0)}
+	return &PatriciaTrie{root: &node{}, strings: make([]string, 0)}
 }
 
 func (n *node) isLeaf() bool {
@@ -30,7 +30,7 @@ func (n *node) isLeaf() bool {
 
 func (t *PatriciaTrie) Print() {
 	fmt.Println("-> TRIE:")
-	fmt.Printf("%v\n", t.edgeValues)
+	fmt.Printf("%v\n", t.strings)
 	node := t.root
 	t.print(node, 0, make([]string, 0))
 }
@@ -40,13 +40,12 @@ func (t *PatriciaTrie) print(currentNode *node, length int, path []string) {
 		return
 	}
 
-	if currentNode.parentEdge != nil {
-		// fmt.Println(t.edgeValues[currentNode.parentEdge.id])
-		// fmt.Printf("-> idx %d -- %d : %d - length %d\n", currentNode.parentEdge.id, length, length+currentNode.parentEdge.length, currentNode.parentEdge.length)
-		edgeLabel := t.edgeValues[currentNode.parentEdge.id][length : length+currentNode.parentEdge.length]
+	if currentNode.parent != nil {
+		l := length + currentNode.parent.len
+		edgeLabel := t.strings[currentNode.parent.id][length:l]
 		edgeLabel = strings.Replace(edgeLabel, string('\x00'), "$", 1)
-		path = append(path, fmt.Sprintf("[%d] %s", currentNode.parentEdge.id, edgeLabel))
-		length += currentNode.parentEdge.length
+		path = append(path, fmt.Sprintf("[%d] %s", currentNode.parent.id, edgeLabel))
+		length += currentNode.parent.len
 	}
 
 	if currentNode.isLeaf() {
@@ -64,8 +63,8 @@ func (t *PatriciaTrie) print(currentNode *node, length int, path []string) {
 func (t *PatriciaTrie) findChild(n *node, key string, elementsFound int) *node {
 	var l int
 	for _, childNode := range n.children {
-		l = elementsFound + childNode.parentEdge.length
-		edgeLabel := t.edgeValues[childNode.parentEdge.id][elementsFound:l]
+		l = elementsFound + childNode.parent.len
+		edgeLabel := t.strings[childNode.parent.id][elementsFound:l]
 
 		if strings.HasPrefix(key, edgeLabel) {
 			return childNode
@@ -77,8 +76,8 @@ func (t *PatriciaTrie) findChild(n *node, key string, elementsFound int) *node {
 func (t *PatriciaTrie) findPrefix(n *node, key string, elementsFound int) (*node, int) {
 	var overlap, l int
 	for _, childNode := range n.children {
-		l = elementsFound + childNode.parentEdge.length
-		edgeLabel := t.edgeValues[childNode.parentEdge.id][elementsFound:l]
+		l = elementsFound + childNode.parent.len
+		edgeLabel := t.strings[childNode.parent.id][elementsFound:l]
 
 		for ; overlap < len(key)-elementsFound; overlap++ {
 			if key[overlap] != edgeLabel[overlap] {
@@ -116,8 +115,8 @@ func (t *PatriciaTrie) search(key string) (*node, int, int) {
 			elementsFound += overlap
 			return currentNode, elementsFound, overlap
 		}
-		key = key[nextNode.parentEdge.length:]
-		elementsFound += nextNode.parentEdge.length
+		key = key[nextNode.parent.len:]
+		elementsFound += nextNode.parent.len
 		currentNode = nextNode
 	}
 
@@ -145,28 +144,28 @@ func (t *PatriciaTrie) Insert(key string) {
 }
 
 func (t *PatriciaTrie) insertRootChild(n *node, key string) {
-	t.edgeValues = append(t.edgeValues, key)
-	edge := &edge{id: len(t.edgeValues) - 1, length: len(key)}
-	childNode := &node{parentEdge: edge}
+	t.strings = append(t.strings, key)
+	edge := &edge{id: len(t.strings) - 1, len: len(key)}
+	childNode := &node{parent: edge}
 	n.children = append(n.children, childNode)
 }
 
 func (t *PatriciaTrie) insertNode(n *node, key string, elementsFound int, overlap int) {
-	idx := n.parentEdge.id
+	idx := n.parent.id
 	lenKey := len(key)
 
 	if overlap != 0 {
-		splitEdge := &edge{id: idx, length: n.parentEdge.length - overlap}
-		splitNode := &node{parentEdge: splitEdge}
+		splitEdge := &edge{id: idx, len: n.parent.len - overlap}
+		splitNode := &node{parent: splitEdge}
 		splitNode.children = n.children
 		n.children = []*node{splitNode}
-		n.parentEdge.length = overlap
+		n.parent.len = overlap
 	}
 
-	t.edgeValues = append(t.edgeValues, key)
-	idx = len(t.edgeValues) - 1
-	newEdge := &edge{id: idx, length: lenKey - elementsFound}
-	newNode := &node{parentEdge: newEdge}
+	t.strings = append(t.strings, key)
+	idx = len(t.strings) - 1
+	newEdge := &edge{id: idx, len: lenKey - elementsFound}
+	newNode := &node{parent: newEdge}
 	n.children = append(n.children, newNode)
 }
 
