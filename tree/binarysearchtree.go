@@ -173,7 +173,7 @@ func (n *avlNode[K, V]) bal() int {
 
 func (n *avlNode[K, V]) insert(key K, value V) *avlNode[K, V] {
 	if n == nil {
-		return &avlNode[K, V]{key: key, value: value}
+		return &avlNode[K, V]{key: key, value: value, height: 1}
 	}
 	if key == n.key {
 		n.value = value
@@ -185,7 +185,8 @@ func (n *avlNode[K, V]) insert(key K, value V) *avlNode[K, V] {
 	} else {
 		n.right = n.right.insert(key, value)
 	}
-	n.height = max(n.left.Height(), n.right.Height()) + 1
+
+	n.updateHeight()
 	return n.rebalance()
 }
 
