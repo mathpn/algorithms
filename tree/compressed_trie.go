@@ -57,7 +57,6 @@ func (t *PatriciaTrie) print(currentNode *node, length int, path []string) {
 	for _, childNode := range currentNode.children {
 		t.print(childNode, length, path)
 	}
-
 }
 
 func (t *PatriciaTrie) findChild(n *node, key string, elementsFound int) *node {
@@ -79,7 +78,7 @@ func (t *PatriciaTrie) findPrefix(n *node, key string, elementsFound int) (*node
 		l = elementsFound + childNode.parent.len
 		edgeLabel := t.strings[childNode.parent.id][elementsFound:l]
 
-		for ; overlap < len(key)-elementsFound; overlap++ {
+		for ; overlap < len(key); overlap++ {
 			if key[overlap] != edgeLabel[overlap] {
 				break
 			}
